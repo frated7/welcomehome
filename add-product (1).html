@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enter Product — Buongiorno Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f2ee;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 3rem 2rem 2rem;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+
+    .header-sub {
+      font-size: 0.8rem;
+      color: #aaa;
+      letter-spacing: 0.02em;
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #888;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .back-link:hover { color: #1a1a1a; }
+
+    .back-link svg { flex-shrink: 0; }
+
+    /* ── Form card ── */
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 2rem 5rem;
+    }
+
+    .form-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 2.5rem 2.5rem 2rem;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.05);
+    }
+
+    /* ── Field groups ── */
+    .field-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="url"] {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      color: #1a1a1a;
+      background: #faf9f7;
+      border: 1.5px solid #e8e4de;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      -webkit-appearance: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="url"]:focus {
+      border-color: #1a1a1a;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(26,26,26,0.06);
+    }
+
+    input::placeholder { color: #ccc; }
+
+    /* Two-column row for price + category */
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* ── Image preview ── */
+    .img-preview-wrap {
+      margin-top: 10px;
+      height: 140px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f0ece6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .img-preview-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .img-placeholder {
+      font-size: 12px;
+      color: #ccc;
+      text-align: center;
+      padding: 1rem;
+      pointer-events: none;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #f0ece6;
+      margin: 2rem 0 1.75rem;
+    }
+
+    /* ── Submit button ── */
+    .submit-btn {
+      width: 100%;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 20px;
+      font-size: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: #333;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.16);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:active:not(:disabled) { transform: scale(0.98); }
+
+    .submit-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Spinner inside button */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .submit-btn.loading .spinner { display: block; }
+    .submit-btn.loading .btn-label { opacity: 0.7; }
+
+    /* ── Success overlay ── */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(245,242,238,0.85);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .success-overlay.visible {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .success-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.1);
+    }
+
+    .success-icon {
+      width: 56px;
+      height: 56px;
+      background: #1a1a1a;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+
+    .success-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-card p {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.5;
+    }
+
+    .success-product-name {
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .redirect-bar {
+      margin-top: 1.75rem;
+      height: 4px;
+      background: #f0ece6;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .redirect-bar-fill {
+      height: 100%;
+      background: #1a1a1a;
+      border-radius: 99px;
+      width: 0%;
+      transition: width 2.8s linear;
+    }
+
+    .redirect-hint {
+      margin-top: 0.6rem;
+      font-size: 12px;
+      color: #ccc;
+    }
+
+    /* ── Error toast ── */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: #c0392b;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+      max-width: 90vw;
+      text-align: center;
+      z-index: 200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 540px) {
+      header, main { padding-left: 1rem; padding-right: 1rem; }
+      .form-card { padding: 1.75rem 1.25rem 1.5rem; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <h1>Enter Product</h1>
+      <span class="header-sub">Buongiorno Welcome</span>
+    </div>
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to shop
+    </a>
+  </header>
+
+  <main>
+    <div class="form-card">
+
+      <!-- Product Name -->
+      <div class="field-group">
+        <label for="field-name">Product Name <span style="color:#c0392b">*</span></label>
+        <input type="text" id="field-name" name="name" placeholder="e.g. Linen Tote Bag" autocomplete="off" required>
+      </div>
+
+      <!-- Category + Price row -->
+      <div class="field-row">
+        <div class="field-group" style="margin-bottom:0">
+          <label for="field-category">Category</label>
+          <input type="text" id="field-category" name="category" placeholder="e.g. Bags" autocomplete="off">
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label for="field-price">Price</label>
+          <input type="number" id="field-price" name="price" placeholder="0.00" min="0" step="0.01">
+        </div>
+      </div>
+
+      <!-- Image URL -->
+      <div class="field-group" style="margin-top:1.5rem">
+        <label for="field-img">Image URL</label>
+        <input type="url" id="field-img" name="img" placeholder="https://…" autocomplete="off">
+        <div class="img-preview-wrap" id="img-preview-wrap">
+          <img id="img-preview" src="" alt="Preview">
+          <p class="img-placeholder" id="img-placeholder">Image preview will appear here</p>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <button class="submit-btn" id="submit-btn" type="button">
+        <div class="spinner"></div>
+        <span class="btn-label">Add to Sheet</span>
+      </button>
+
+    </div>
+  </main>
+
+  <!-- Success overlay -->
+  <div class="success-overlay" id="success-overlay" role="dialog" aria-modal="true" aria-label="Product added successfully">
+    <div class="success-card">
+      <div class="success-icon">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 11.5L8.5 16L18 6" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Product Added</h2>
+      <p><span class="success-product-name" id="success-name"></span> has been saved to your sheet.</p>
+      <div class="redirect-bar"><div class="redirect-bar-fill" id="redirect-bar-fill"></div></div>
+      <p class="redirect-hint">Returning to shop…</p>
+    </div>
+  </div>
+
+  <!-- Error toast -->
+  <div class="toast" id="toast" role="alert"></div>
+
+  <script>
+    // ─────────────────────────────────────────────────────────
+    //  CONFIG — paste your deployed Apps Script URL here
+    // ─────────────────────────────────────────────────────────
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxULhnYKgCAeNHvrjo0Rdm0L8JmV1OBzZbZsmMX9YWjgg_UP578Z5N80SkJYqzhE59t/exec";
+
+    // ─────────────────────────────────────────────────────────
+    //  Image preview
+    // ─────────────────────────────────────────────────────────
+    const imgInput       = document.getElementById('field-img');
+    const imgPreview     = document.getElementById('img-preview');
+    const imgPlaceholder = document.getElementById('img-placeholder');
+
+    imgInput.addEventListener('input', () => {
+      const url = imgInput.value.trim();
+      if (url) {
+        imgPreview.src = url;
+        imgPreview.style.display = 'block';
+        imgPlaceholder.style.display = 'none';
+        imgPreview.onerror = () => {
+          imgPreview.style.display = 'none';
+          imgPlaceholder.style.display = 'block';
+          imgPlaceholder.textContent = 'Could not load image';
+        };
+      } else {
+        imgPreview.style.display = 'none';
+        imgPlaceholder.style.display = 'block';
+        imgPlaceholder.textContent = 'Image preview will appear here';
+      }
+    });
+
+    // ─────────────────────────────────────────────────────────
+    //  Toast helper
+    // ─────────────────────────────────────────────────────────
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  Submit handler
+    // ─────────────────────────────────────────────────────────
+    document.getElementById('submit-btn').addEventListener('click', async () => {
+      // 1. Read field values — names match the variables used in the
+      //    original HTML (name, category, price, img) so they align
+      //    with the Google Sheet column headers exactly.
+      const name     = document.getElementById('field-name').value.trim();
+      const category = document.getElementById('field-category').value.trim();
+      const price    = document.getElementById('field-price').value.trim();
+      const img      = document.getElementById('field-img').value.trim();
+
+      // 2. Basic client-side validation
+      if (!name) {
+        showToast('Product name is required.');
+        document.getElementById('field-name').focus();
+        return;
+      }
+
+      // 3. Show loading state — disable button, show spinner
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.querySelector('.btn-label').textContent = 'Saving…';
+
+      try {
+        // 4. Build URL query string from the detected field names.
+        //    URLSearchParams safely encodes special characters.
+        const params = new URLSearchParams({ name, category, price, img });
+        const url    = `${WEB_APP_URL}?${params.toString()}`;
+
+        // 5. Send to Apps Script via fetch()
+        const res = await fetch(url);
+
+        // Apps Script always returns HTTP 200, so we check the
+        // JSON body for the actual success/error status.
+        const result = await res.json();
+
+        if (result.status !== 'success') {
+          throw new Error(result.message || 'Unknown error from server.');
+        }
+
+        // 6. Show polished success overlay
+        document.getElementById('success-name').textContent = name;
+        const overlay = document.getElementById('success-overlay');
+        overlay.classList.add('visible');
+
+        // Animate the redirect progress bar then navigate
+        requestAnimationFrame(() => {
+          document.getElementById('redirect-bar-fill').style.width = '100%';
+        });
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 3000);
+
+      } catch (err) {
+        // 7. Restore button state and show error toast
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.querySelector('.btn-label').textContent = 'Add to Sheet';
+        showToast('Could not save product. Check your Apps Script URL or connection.');
+        console.error('Submission error:', err);
+      }
+    });
+  </script>
+
+</body>
+</html>
