@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buongiorno Welcome</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f2ee;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 3rem 2rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+    }
+
+    .item-count {
+      font-size: 0.875rem;
+      color: #888;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
+
+    .card-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      background: #e8e4de;
+    }
+
+    .card-body {
+      padding: 14px 16px 16px;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    .card-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .price {
+      font-size: 17px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .add-btn {
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .add-btn:hover { background: #333; }
+    .add-btn:active { transform: scale(0.97); }
+
+    .loading {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 0;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    .error {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 0;
+      color: #c0392b;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      header, main { padding-left: 1rem; padding-right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Buongiorno Welcome</h1>
+    <span class="item-count" id="count"></span>
+  </header>
+
+  <main>
+    <div class="grid" id="grid">
+      <div class="loading">Loading products…</div>
+    </div>
+  </main>
+
+  <script>
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQarpVqMtZSh7L1rbU0APURNHkV_CaNOL2jVwvYLOJs9aTcPDklLQByPmMMAGmJro7I_kydpo33WrKr/pub?output=csv';
+
+    const grid = document.getElementById('grid');
+    const countEl = document.getElementById('count');
+
+    /**
+     * Minimal CSV parser that handles quoted fields (including commas inside quotes).
+     * Returns an array of row-arrays.
+     */
+    function parseCSV(text) {
+      const rows = [];
+      const lines = text.split(/\r?\n/);
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const cols = [];
+        let cur = '';
+        let inQuote = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            // doubled quote inside a quoted field → literal quote
+            if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
+            else inQuote = !inQuote;
+          } else if (ch === ',' && !inQuote) {
+            cols.push(cur.trim()); cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        cols.push(cur.trim());
+        rows.push(cols);
+      }
+      return rows;
+    }
+
+    function renderProducts(products) {
+      grid.innerHTML = '';
+
+      if (!products.length) {
+        grid.innerHTML = '<div class="error">No products found in the sheet.</div>';
+        countEl.textContent = '0 items';
+        return;
+      }
+
+      countEl.textContent = products.length + ' item' + (products.length !== 1 ? 's' : '');
+
+      products.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const price = parseFloat(p.price);
+        const priceDisplay = isNaN(price) ? p.price : '$' + price.toFixed(2);
+        card.innerHTML = `
+          <img class="card-img" src="${p.img}" alt="${p.name}" loading="lazy">
+          <div class="card-body">
+            <p class="card-meta">${p.category}</p>
+            <p class="card-name">${p.name}</p>
+            <div class="card-footer">
+              <span class="price">${priceDisplay}</span>
+              <button class="add-btn">+ Add</button>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    async function loadFromSheet() {
+      try {
+        const res = await fetch(SHEET_CSV_URL);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        const rows = parseCSV(text);
+
+        if (rows.length < 2) {
+          grid.innerHTML = '<div class="error">Sheet appears to be empty.</div>';
+          return;
+        }
+
+        // Normalise header names: lowercase + trim
+        const headers = rows[0].map(h => h.toLowerCase().trim());
+
+        // Find column indices — accepts flexible header names
+        const col = {
+          name:     headers.findIndex(h => h.includes('name')),
+          category: headers.findIndex(h => h.includes('category') || h.includes('cat')),
+          price:    headers.findIndex(h => h.includes('price')),
+          img:      headers.findIndex(h => h.includes('img') || h.includes('image') || h.includes('url') || h.includes('photo')),
+        };
+
+        const products = rows.slice(1).map(row => ({
+          name:     col.name     >= 0 ? row[col.name]     : '',
+          category: col.category >= 0 ? row[col.category] : '',
+          price:    col.price    >= 0 ? row[col.price]    : '',
+          img:      col.img      >= 0 ? row[col.img]      : '',
+        })).filter(p => p.name); // skip blank rows
+
+        renderProducts(products);
+      } catch (err) {
+        console.error('Failed to load sheet:', err);
+        grid.innerHTML = `<div class="error">Could not load products. Check the sheet URL or network connection.<br><small>${err.message}</small></div>`;
+      }
+    }
+
+    loadFromSheet();
+  </script>
+
+</body>
+</html>
